@@ -1,0 +1,7 @@
+layout save: user.layout_save("default")
+layout restore: user.layout_restore("default")
+layout save    <user.text>$: user.layout_save(text)
+layout save    {user.window_layout}$: user.layout_save(window_layout)
+layout restore {user.window_layout}$: user.layout_restore(window_layout)
+layout clear   {user.window_layout}$: user.layout_clear(window_layout)
+layout dump    {user.window_layout}$: print(user.layout_get(window_layout or "default"))
