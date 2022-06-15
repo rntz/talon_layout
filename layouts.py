@@ -43,10 +43,10 @@ class ModuleActions:
     # maybe timestamps so we can see how old the layout is?
     def layout_save(name: str):
         """Remembers window positions for windows on current workspace."""
-        memory = [serialize_window(w)
+        layout = [serialize_window(w)
                   for w in ui.windows()
                   if w.workspace == ui.active_workspace()]
-        storage.set(f'self.layout/layout/{name}', memory)
+        storage.set(f'self.layout/layout/{name}', layout)
         layout_list_update()
 
     def layout_clear(name: str):
@@ -62,13 +62,13 @@ class ModuleActions:
         # may not be respected by the order of ui.windows(). Hence this long delay.
         actions.sleep('650ms')
 
-        memory = actions.user.layout_get(name)
-        index = {w['id']: w for w in memory}
+        layout = actions.user.layout_get(name)
+        index = {w['id']: w for w in layout}
         moved_windows = 0
 
         # Reversed to avoid changing stacking order (moving windows puts them on
         # top of the stack).
-        for w in list(reversed(ui.windows())):
+        for w in reversed(ui.windows()):
             try: desc = index.pop(w.id)
             except KeyError:
                 w.rect = w.rect # push to top
@@ -84,11 +84,11 @@ class ModuleActions:
 
         # Print some stats.
         failed = len(index)
-        if 0 < failed == len(memory):
+        if 0 < failed == len(layout):
             logging.warning("Could not restore any windows!")
         elif failed:
             logging.warning(f"Could not restore {failed} windows: " +
                             ''.join('\n  ' + str(v) for v in index.values()))
-        avoided_moving = len(memory) - failed - moved_windows
+        avoided_moving = len(layout) - failed - moved_windows
         if avoided_moving:
             logging.info(f"Avoided moving {avoided_moving} windows")
